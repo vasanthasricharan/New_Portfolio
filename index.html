@@ -10,79 +10,47 @@
 
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp }
-        from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    // Firebase config
-    const firebaseConfig = {
-        apiKey: "AIzaSyCyFxgE-8My3hpIjCRPA0dHGJDl43fmHN8",
-        authDomain: "portfolio-messages-65.firebaseapp.com",
-        projectId: "portfolio-messages-65",
-        storageBucket: "portfolio-messages-65.appspot.com",
-        messagingSenderId: "735007582015",
-        appId: "1:735007582015:web:ffeebfd793da788242158a"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyCyFxgE-8My3hpIjCRPA0dHGJDl43fmHN8",
+    authDomain: "portfolio-messages-65.firebaseapp.com",
+    projectId: "portfolio-messages-65",
+    storageBucket: "portfolio-messages-65.appspot.com",   // ✅ fixed
+    messagingSenderId: "735007582015",
+    appId: "1:735007582015:web:ffeebfd793da788242158a"
+  };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const messagesRef = collection(db, "messages");
 
-    const messagesRef = collection(db, "messages");
+  document.getElementById("contactForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    const form = document.getElementById("contactForm");
-    const messagesList = document.getElementById("messagesList");
-    const showMessagesBtn = document.getElementById("showMessagesBtn");
-    const backBtn = document.getElementById("backBtn");
-    const contactSection = document.getElementById("contactSection");
-    const messagesSection = document.getElementById("messagesSection");
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const comment = document.getElementById("comment").value.trim();
 
-    // Submit handler
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const name = document.getElementById("name").value.trim();
-        const email = document.getElementById("email").value.trim();
-        const comment = document.getElementById("comment").value.trim();
-
-        if (name && email && comment) {
-            await addDoc(messagesRef, {
-                name,
-                email,
-                comment,
-                createdAt: serverTimestamp()
-            });
-            form.reset();
-            loadMessages();
-        }
-    });
-
-    // Load messages
-    async function loadMessages() {
-        const q = query(messagesRef, orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
-        messagesList.innerHTML = "";
-        querySnapshot.forEach((doc) => {
-            const msg = doc.data();
-            const li = document.createElement("li");
-            li.classList.add("messagelist");
-            li.innerHTML = `<strong>${msg.name}</strong> (${msg.email}): <br>${msg.comment}`;
-            messagesList.appendChild(li);
+    if (name && email && comment) {
+      try {
+        await addDoc(messagesRef, {
+          name,
+          email,
+          comment,
+          createdAt: serverTimestamp()
         });
+        alert("Message saved ✅");
+      } catch (error) {
+        console.error("Error saving message: ", error);
+        alert("❌ Error: " + error.message);
+      }
     }
-
-    // Show/Hide toggle
-    showMessagesBtn.addEventListener("click", () => {
-        contactSection.style.display = "none";
-        messagesSection.style.display = "block";
-        loadMessages();
-    });
-
-    backBtn.addEventListener("click", () => {
-        messagesSection.style.display = "none";
-        contactSection.style.display = "block";
-    });
+  });
 </script>
+
 
 <body>
     <div class="welcome-content" id="welcome-content">
@@ -380,3 +348,4 @@
 
 
 </html>
+
